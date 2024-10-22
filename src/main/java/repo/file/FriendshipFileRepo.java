@@ -22,25 +22,25 @@ public class FriendshipFileRepo extends AbstractFileRepository<UUID, Friendship>
 
     @Override
     protected Friendship createEntity(String line) {
-        if(line == null)
-            return null;
         String[] splited = line.split(";");
         //print all users
 
-        User u1 = userRepo.findOne(UUID.fromString(splited[0]));
-        User u2 = userRepo.findOne(UUID.fromString(splited[1]));
-        userRepo.findAll().forEach(System.out::println);
-        if(u1 == null || u2 == null)
-            return null;
-        System.out.println(splited[0]+"+"+splited[1]);
+        if(userRepo != null){
+            User u1 = userRepo.findOne(UUID.fromString(splited[0]));
+            User u2 = userRepo.findOne(UUID.fromString(splited[1]));
+            if(u1 == null || u2 == null)
+                return null;
+            System.out.println(splited[0]+"+"+splited[1]);
 
-        Friendship f = new Friendship(u1, u2);
-        f.setId(UUID.fromString(splited[2]));
-        f.setFriendshipDate(LocalDateTime.parse(splited[3]));
+            Friendship f = new Friendship(u1, u2);
+            f.setId(UUID.fromString(splited[2]));
+            f.setFriendshipDate(LocalDateTime.parse(splited[3]));
 
-        u1.addFriend(u2);
-        u2.addFriend(u1);
-        return f;
+            u1.addFriend(u2);
+            u2.addFriend(u1);
+            return f;
+        }
+        return null;
     }
 
     @Override

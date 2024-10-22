@@ -8,6 +8,7 @@ import java.util.UUID;
 public class UserFileRepo extends AbstractFileRepository<UUID, User> {
     public UserFileRepo(String fileName, Validator<User> validator) {
         super(fileName, validator);
+        super.loadFromFile();
     }
     @Override
     protected User createEntity(String line) {

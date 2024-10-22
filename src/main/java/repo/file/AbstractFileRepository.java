@@ -19,7 +19,7 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
     public AbstractFileRepository(String filename, Validator<E> validator) {
         super(validator);
         this.filename = filename;
-        loadFromFile(); // Load data once during initialization
+
     }
 
     protected synchronized void loadFromFile() {
