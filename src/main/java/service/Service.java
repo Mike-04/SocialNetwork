@@ -19,6 +19,13 @@ public class Service implements Controller{
         this.friendshipRepo = friendshipRepo;
     }
 
+    public ArrayList<User> getFriendsOfUser(String username){
+        User u = (User) this.getUserByUsername(username);
+        if(u == null){
+            throw new RuntimeException("User does not exist");
+        }
+        return new ArrayList<>(u.getFriends());
+    }
 
     protected Entity<UUID> getUserByUsername(String username){
         //get all users
@@ -67,6 +74,8 @@ public class Service implements Controller{
                 throw new Exception("One or both users do not exist");
             }
             friendshipRepo.save(new Friendship(u1,u2));
+            u1.addFriend(u2);
+            u2.addFriend(u1);
         }catch (Exception e){
             throw new RuntimeException(e.getMessage());
         }
@@ -82,7 +91,7 @@ public class Service implements Controller{
             }
             Iterable<Friendship> friendships = friendshipRepo.findAll();
             for (Friendship f : friendships){
-                if(f.getUser1().equals(u1) && f.getUser2().equals(u2)){
+                if(f.getUser1().equals(u1) && f.getUser2().equals(u2) || f.getUser1().equals(u2) && f.getUser2().equals(u1)){
                     friendshipRepo.delete(f.getId());
                     u1.removeFriend(u2);
                     u2.removeFriend(u1);

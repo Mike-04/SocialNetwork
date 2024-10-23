@@ -5,7 +5,7 @@ import repo.file.*;
 import repo.*;
 import domain.validators.*;
 import service.*;
-
+import view.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -17,17 +17,8 @@ public class Main {
         // print all friendships
         Service service = new Service(userRepo, friendshipRepo);
         //print all the friends of all users
-        userRepo.findAll().forEach(user -> {
-            System.out.println("User:");
-            System.out.println(user);
-            System.out.printf("Friends: %n");
-            user.getFriends().forEach(System.out::println);
-        });
-        System.out.println(service.getNumberOfCommunities());
-
-        friendshipRepo.findAll().forEach(System.out::println);
-
-        service.getBiggestComunity().forEach(System.out::println);
+        ConsoleUI consoleUI = new ConsoleUI(service);
+        consoleUI.start();
 
     }
 }
