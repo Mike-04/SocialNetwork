@@ -5,6 +5,9 @@ import domain.validators.Validator;
 
 import java.util.UUID;
 
+/**
+ * User file repository
+ */
 public class UserFileRepo extends AbstractFileRepository<UUID, User> {
     public UserFileRepo(String fileName, Validator<User> validator) {
         super(fileName, validator);

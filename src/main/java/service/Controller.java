@@ -5,6 +5,11 @@ import domain.User;
 
 import java.util.ArrayList;
 
+/**
+ * Controller interface
+ * Contains the methods that the controller should implement
+ * The controller is the intermediary between the user interface and the repository
+ */
 public interface Controller {
     void addUser(String firstName, String lastName, String username);
     void deleteUser(String username);

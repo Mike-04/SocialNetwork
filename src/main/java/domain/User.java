@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * User entity
+ * Represents a user
+ */
 public class User extends Entity<UUID>{
     private String firstName;
     private String lastName;

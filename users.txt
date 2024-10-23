@@ -1,6 +1,5 @@
 5594575d-4ee4-442f-a08d-82c7557359a9;Johny;Doe;johny_doe
-de6cc539-f694-4fc6-9280-f05c29b9ae81;John;Doe;john_doe
 aebd9636-6c7b-4787-a2bf-731dc6668814;Alice;Bob;alice_bob
-89d8c7a0-9e5d-4b12-8a58-8eb02a9b2d3d;bim;bam;bimbam
+1ac17763-f15a-4b9f-be38-18b92e3aa29b;bim;bam;python_guy
+8cc85593-f8e9-4db7-824a-fd8efdab5366;john;doe;john_doe
 72f5e2f0-7e81-4a50-a6e2-07e15a2a5833;Jane;Doe;jane_doe
-2006c149-9531-485d-ac09-b83cc65318fb;Bob;Alice;bob_alice

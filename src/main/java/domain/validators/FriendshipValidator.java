@@ -2,6 +2,10 @@ package domain.validators;
 
 import domain.Friendship;
 
+/**
+ * Friendship validator
+ * Validates a friendship
+ */
 public class FriendshipValidator implements Validator<Friendship> {
     @Override
     public void validate(Friendship entity) throws ValidationException {

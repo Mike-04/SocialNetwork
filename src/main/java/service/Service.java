@@ -14,11 +14,22 @@ public class Service implements Controller{
     private Repository<UUID,User> userRepo;
     private Repository<UUID,Friendship> friendshipRepo;
 
+    /**
+     * @param userRepo the repository of users
+     * @param friendshipRepo the repository of friendships
+     *                       Creates a new Service object
+     */
     public Service(Repository<UUID, User> userRepo, Repository<UUID, Friendship> friendshipRepo){
         this.userRepo = userRepo;
         this.friendshipRepo = friendshipRepo;
     }
 
+    /**
+     * @param username the username of the user
+     * @return the friends of the user with the given username
+     *        Throws RuntimeException if the user does not exist
+     *        Returns an ArrayList of User objects
+     */
     public ArrayList<User> getFriendsOfUser(String username){
         User u = (User) this.getUserByUsername(username);
         if(u == null){
@@ -27,6 +38,12 @@ public class Service implements Controller{
         return new ArrayList<>(u.getFriends());
     }
 
+    /**
+     * @param username the username of the user
+     * @return the user with the given username
+     *       Returns null if the user does not exist
+     *       Returns an Entity object
+     */
     protected Entity<UUID> getUserByUsername(String username){
         //get all users
         //return the user with the given username
@@ -40,6 +57,15 @@ public class Service implements Controller{
         return null;
     }
 
+    /**
+     * @param firstName the first name of the user
+     * @param lastName  the last name of the user
+     * @param username the username of the user
+     *                 Adds a new user to the social network
+     *                 Throws RuntimeException if the user already exists
+     *                 Throws RuntimeException if the user cannot be saved
+     *                Returns nothing
+     */
     @Override
     public void addUser(String firstName, String lastName, String username) {
         try{
@@ -52,6 +78,12 @@ public class Service implements Controller{
         }
     }
 
+    /**
+     * @param username the username of the user
+     *                 Deletes a user from the social network
+     *                 Throws RuntimeException if the user does not exist
+     *                 Returns nothing
+     */
     @Override
     public void deleteUser(String username) {
         try{
@@ -60,11 +92,33 @@ public class Service implements Controller{
                 throw new Exception("User does not exist");
             }
             userRepo.delete(u.getId());
+            //remove friendships
+            Iterable<Friendship> friendships = friendshipRepo.findAll();
+            HashSet<Friendship> toDelete = new HashSet<>();
+            for(Friendship f : friendships){
+                if(f.getUser1().equals(u) || f.getUser2().equals(u)){
+                    toDelete.add(f);
+                }
+            }
+
+            for(Friendship f : toDelete){
+                friendshipRepo.delete(f.getId());
+            }
+
+            //remove the user from all user friend lists
+            for(User user : userRepo.findAll()){
+                user.removeFriend(u);
+            }
         }catch (Exception e){
             throw new RuntimeException(e.getMessage());
         }
     }
 
+    /**
+     * @param username1 the username of the first user
+     * @param username2 the username of the second user
+     *                  Adds a friendship between two users
+     */
     @Override
     public void addFriendship(String username1, String username2) {
         try{
@@ -81,6 +135,11 @@ public class Service implements Controller{
         }
     }
 
+    /**
+     * @param username1 the username of the first user
+     * @param username2 the username of the second user
+     *                  Removes a friendship between two users
+     */
     @Override
     public void removeFriendship(String username1, String username2) {
         try{
@@ -104,6 +163,10 @@ public class Service implements Controller{
 
     }
 
+    /**
+     * @return all users in the social network
+     *       Returns an ArrayList of User objects
+     */
     @Override
     public ArrayList<User> getAllUsers() {
         ArrayList<User> users = new ArrayList<>();
@@ -113,6 +176,10 @@ public class Service implements Controller{
         return users;
     }
 
+    /**
+     * @return all friendships in the social network
+     *      Returns an ArrayList of Friendship objects
+     */
     @Override
     public ArrayList<Friendship> getAllFriendships() {
         ArrayList<Friendship> friendships = new ArrayList<>();
@@ -122,6 +189,11 @@ public class Service implements Controller{
         return friendships;
     }
 
+    /**
+     * @return the biggest community in the social network
+     *     Returns an ArrayList of User objects
+     *     The biggest community is the connected component with the most users
+     */
     @Override
     public ArrayList<User> getBiggestComunity() {
         //get all connected components in the friendship graph
@@ -141,6 +213,10 @@ public class Service implements Controller{
         return biggestCommunity;
     }
 
+    /**
+     * @return the number of communities in the social network
+     *   Returns an integer
+     */
     @Override
     public int getNumberOfCommunities() {
         //find the number of connected components in the friendship graph
@@ -156,6 +232,12 @@ public class Service implements Controller{
         return count;
     }
 
+    /**
+     * @param u the user
+     * @param visited the list of visited users
+     * @return the connected component of the user
+     *      Returns an ArrayList of User objects
+     */
     private ArrayList<User> dfs(User u, ArrayList<User> visited) {
         ArrayList<User> connectedComponent = new ArrayList<>();
 

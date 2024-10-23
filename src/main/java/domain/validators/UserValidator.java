@@ -2,6 +2,10 @@ package domain.validators;
 
 import domain.User;
 
+/**
+ *  User validator
+ *  Validates a user
+ */
 public class UserValidator implements Validator<User> {
     @Override
     public void validate(User entity) throws ValidationException {

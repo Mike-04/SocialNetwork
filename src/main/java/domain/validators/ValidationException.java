@@ -1,5 +1,9 @@
 package domain.validators;
 
+/**
+ * Validation exception
+ * Thrown when an entity is not valid
+ */
 public class ValidationException extends RuntimeException {
     public ValidationException() {
     }

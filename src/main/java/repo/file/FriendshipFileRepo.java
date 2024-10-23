@@ -8,6 +8,10 @@ import repo.Repository;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Friendship file repository
+ * Manages the friendships in a file
+ */
 public class FriendshipFileRepo extends AbstractFileRepository<UUID, Friendship> {
 
     Repository<UUID, User> userRepo;
@@ -30,7 +34,7 @@ public class FriendshipFileRepo extends AbstractFileRepository<UUID, Friendship>
             User u2 = userRepo.findOne(UUID.fromString(splited[1]));
             if(u1 == null || u2 == null)
                 return null;
-            System.out.println(splited[0]+"+"+splited[1]);
+            //System.out.println(splited[0]+"+"+splited[1]);
 
             Friendship f = new Friendship(u1, u2);
             f.setId(UUID.fromString(splited[2]));

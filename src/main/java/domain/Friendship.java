@@ -4,6 +4,12 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ *
+ *  Friendship entity
+ *  Represents a friendship between two users
+ *  A friendship is defined by the two users and the date when the friendship was created
+ */
 public class Friendship extends Entity<UUID>{
     User user1;
     User user2;
