@@ -12,6 +12,8 @@ public class ConsoleUI {
     public void start(){
         Scanner scanner = new Scanner(System.in);
         while(true){
+            try{
+            System.out.println("Welcome to the FacePalm social network");
             System.out.println("1. Add user");
             System.out.println("2. Delete user");
             System.out.println("3. Add friendship");
@@ -24,7 +26,7 @@ public class ConsoleUI {
             System.out.println("0. Exit");
             int option = scanner.nextInt();
             scanner.nextLine();
-            switch(option){
+            switch(option) {
                 case 1:
                     this.addUserUI();
                     break;
@@ -54,6 +56,11 @@ public class ConsoleUI {
                     break;
                 case 0:
                     return;
+                default:
+                    System.out.println("*face palms*\nYou can't read?");
+            }
+            }catch(Exception e){
+                System.out.println("*face palms*");
             }
         }
     }
