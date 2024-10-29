@@ -6,22 +6,24 @@ import repo.Repository;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
-public class InMemoryRepository<ID, E extends Entity<ID>> implements Repository<ID,E> {
+public class InMemoryRepository<ID, E extends Entity<ID>> implements Repository<ID, E> {
     private Validator<E> validator;
-    protected Map<ID,E> entities;
+    protected Map<ID, E> entities;
 
     public InMemoryRepository() {}
     public InMemoryRepository(Validator<E> validator) {
         this.validator = validator;
-        entities=new HashMap<ID,E>();
+        entities = new HashMap<>();
     }
 
     @Override
-    public E findOne(ID id) {
-        if(id == null)
+    public Optional<E> findOne(ID id) {
+        if (id == null)
             throw new IllegalArgumentException("how did a null id even get here? Hecker?");
-        return entities.get(id);
+        // Use Optional.ofNullable to handle null values in Optional
+        return Optional.ofNullable(entities.get(id));
     }
 
     @Override
@@ -30,41 +32,41 @@ public class InMemoryRepository<ID, E extends Entity<ID>> implements Repository<
     }
 
     @Override
-    public E save(E entity) {
+    public Optional<E> save(E entity) {
         if (entity == null)
             throw new IllegalArgumentException("HOW DID A NULL ENTITY EVEN GET HERE? HACKER?");
         validator.validate(entity);
-        if(entities.get(entity.getId()) != null)
-            return entity;
-        else{
-            entities.put(entity.getId(),entity);
-            return null;
+
+        // Check if entity exists and return it wrapped in Optional if it does
+        if (entities.containsKey(entity.getId())) {
+            return Optional.of(entity);
+        } else {
+            entities.put(entity.getId(), entity);
+            return Optional.empty(); // Return empty Optional if save is successful
         }
     }
 
     @Override
-    public E delete(ID id) {
-        if(id == null)
+    public Optional<E> delete(ID id) {
+        if (id == null)
             throw new IllegalArgumentException("how did a null id even get here? Hecker?");
 
-        E e = entities.get(id);
-
-        if(e == null)
-            return null;
-
-        return entities.remove(e.getId());
+        // Remove the entity if it exists and return it wrapped in Optional
+        return Optional.ofNullable(entities.remove(id));
     }
 
     @Override
-    public E update(E entity) {
-        if(entity == null)
+    public Optional<E> update(E entity) {
+        if (entity == null)
             throw new IllegalArgumentException("HOW DID A NULL ENTITY EVEN GET HERE? HACKER?");
         validator.validate(entity);
-        if(entities.get(entity.getId()) == null)
-            return entity;
-        else{
-            entities.put(entity.getId(),entity);
-            return null;
+
+        // If entity does not exist, return it wrapped in Optional
+        if (!entities.containsKey(entity.getId())) {
+            return Optional.of(entity);
+        } else {
+            entities.put(entity.getId(), entity);
+            return Optional.empty(); // Return empty Optional if update is successful
         }
     }
 }

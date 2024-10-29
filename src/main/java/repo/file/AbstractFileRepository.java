@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * @param <ID> - the type of the id of the entity
@@ -37,12 +38,11 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
     public AbstractFileRepository(String filename, Validator<E> validator) {
         super(validator);
         this.filename = filename;
-
     }
 
     /**
-     * Loads entities from file
-     * If an entity is loaded successfully, it is saved in memory
+     * Loads entities from file.
+     * If an entity is loaded successfully, it is saved in memory.
      */
     protected synchronized void loadFromFile() {
         try (BufferedReader br = new BufferedReader(new java.io.FileReader(filename))) {
@@ -59,8 +59,8 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
     }
 
     /**
-     * Saves entities to file
-     * If an entity is saved successfully, it is saved in memory
+     * Saves entities to file.
+     * If an entity is saved successfully, it is saved in memory.
      */
     protected synchronized void saveToFile() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename, false))) {
@@ -75,29 +75,29 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
     }
 
     @Override
-    public E save(E entity) {
-        E e = super.save(entity);
-        if (e == null) {
+    public Optional<E> save(E entity) {
+        Optional<E> existingEntity = super.save(entity);
+        if (existingEntity.isEmpty()) {
             saveToFile();
         }
-        return e;
+        return existingEntity;
     }
 
     @Override
-    public E delete(ID id) {
-        E e = super.delete(id);
-        if (e != null) {
+    public Optional<E> delete(ID id) {
+        Optional<E> deletedEntity = super.delete(id);
+        if (deletedEntity.isPresent()) {
             saveToFile();
         }
-        return e;
+        return deletedEntity;
     }
 
     @Override
-    public E update(E entity) {
-        E e = super.update(entity);
-        if (e == null) {
+    public Optional<E> update(E entity) {
+        Optional<E> updatedEntity = super.update(entity);
+        if (updatedEntity.isEmpty()) {
             saveToFile();
         }
-        return e;
+        return updatedEntity;
     }
 }
