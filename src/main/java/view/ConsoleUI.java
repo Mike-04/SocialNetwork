@@ -154,7 +154,7 @@ public class ConsoleUI {
      *   Prints the biggest community in the social network
      */
     void printBiggestCommunityUI(){
-        service.getBiggestComunity().forEach(System.out::println);
+        service.getBiggestCommunity().forEach(System.out::println);
     }
 
     /**

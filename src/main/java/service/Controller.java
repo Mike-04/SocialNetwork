@@ -3,7 +3,7 @@ package service;
 import domain.Friendship;
 import domain.User;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Controller interface
@@ -15,9 +15,9 @@ public interface Controller {
     void deleteUser(String username);
     void addFriendship(String username1, String username2);
     void removeFriendship(String username1, String username2);
-    ArrayList<User> getAllUsers();
-    ArrayList<Friendship> getAllFriendships();
-    ArrayList<User> getBiggestComunity();
+    List<User> getAllUsers();
+    List<Friendship> getAllFriendships();
+    List<User> getBiggestCommunity();
     int getNumberOfCommunities();
 
 }

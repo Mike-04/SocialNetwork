@@ -1,260 +1,209 @@
 package service;
 
-import domain.Entity;
 import domain.Friendship;
 import domain.User;
 import repo.Repository;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class Service implements Controller{
+public class Service implements Controller {
 
-    private Repository<UUID,User> userRepo;
-    private Repository<UUID,Friendship> friendshipRepo;
+    private final Repository<UUID, User> userRepo;
+    private final Repository<UUID, Friendship> friendshipRepo;
 
     /**
-     * @param userRepo the repository of users
-     * @param friendshipRepo the repository of friendships
-     *                       Creates a new Service object
+     * Creates a new Service object
+     * @param userRepo the user repository
+     * @param friendshipRepo the friendship repository
      */
-    public Service(Repository<UUID, User> userRepo, Repository<UUID, Friendship> friendshipRepo){
+    public Service(Repository<UUID, User> userRepo, Repository<UUID, Friendship> friendshipRepo) {
         this.userRepo = userRepo;
         this.friendshipRepo = friendshipRepo;
     }
 
     /**
+     * Returns a list of all friends of a user
      * @param username the username of the user
-     * @return the friends of the user with the given username
-     *        Throws RuntimeException if the user does not exist
-     *        Returns an ArrayList of User objects
+     * @return a list of all friends of the user
      */
-    public ArrayList<User> getFriendsOfUser(String username){
-        User u = (User) this.getUserByUsername(username);
-        if(u == null){
+    public List<User> getFriendsOfUser(String username) {
+        User user = getUserByUsername(username);
+        if (user == null) {
             throw new RuntimeException("User does not exist");
         }
-        return new ArrayList<>(u.getFriends());
+        return new ArrayList<>(user.getFriends());
     }
 
     /**
+     * Returns the user with the given username
      * @param username the username of the user
-     * @return the user with the given username
-     *       Returns null if the user does not exist
-     *       Returns an Entity object
+     * @return the user with the given username, or null if not found
      */
-    protected Entity<UUID> getUserByUsername(String username){
-        //get all users
-        //return the user with the given username
-        Iterable<User> users = userRepo.findAll();
-        for(User u : users){
-            if(u.getUsername().equals(username)){
-                return u;
+    protected User getUserByUsername(String username) {
+        final User[] foundUser = {null}; // Use an array to hold the found user reference
+        userRepo.findAll().forEach(user -> {
+            if (user.getUsername().equals(username)) {
+                foundUser[0] = user; // Set the found user
             }
-        }
-
-        return null;
+        });
+        return foundUser[0]; // Return the found user, or null if not found
     }
 
     /**
+     * Adds a user to the social network
      * @param firstName the first name of the user
-     * @param lastName  the last name of the user
+     * @param lastName the last name of the user
      * @param username the username of the user
-     *                 Adds a new user to the social network
-     *                 Throws RuntimeException if the user already exists
-     *                 Throws RuntimeException if the user cannot be saved
-     *                Returns nothing
      */
     @Override
     public void addUser(String firstName, String lastName, String username) {
-        try{
-            if(this.getUserByUsername(username) != null){
-                throw new Exception("User already exists");
-            }
-            userRepo.save(new User(firstName,lastName,username));
-        }catch (Exception e){
-            throw new RuntimeException(e.getMessage());
+        if (getUserByUsername(username) != null) {
+            throw new RuntimeException("User already exists");
         }
+        User user = new User(firstName, lastName, username);
+        userRepo.save(user).orElseThrow(() -> new RuntimeException("User could not be saved"));
     }
 
     /**
-     * @param username the username of the user
-     *                 Deletes a user from the social network
-     *                 Throws RuntimeException if the user does not exist
-     *                 Returns nothing
+     * Deletes a user from the social network
+     * @param username the username of the user to be deleted
      */
     @Override
     public void deleteUser(String username) {
-        try{
-            User u = (User) this.getUserByUsername(username);
-            if(u == null){
-                throw new Exception("User does not exist");
-            }
-            userRepo.delete(u.getId());
-            //remove friendships
-            Iterable<Friendship> friendships = friendshipRepo.findAll();
-            HashSet<Friendship> toDelete = new HashSet<>();
-            for(Friendship f : friendships){
-                if(f.getUser1().equals(u) || f.getUser2().equals(u)){
-                    toDelete.add(f);
-                }
-            }
+        User user = Optional.ofNullable(getUserByUsername(username))
+                .orElseThrow(() -> new RuntimeException("User does not exist"));
 
-            for(Friendship f : toDelete){
-                friendshipRepo.delete(f.getId());
-            }
+        userRepo.delete(user.getId()).orElseThrow(() -> new RuntimeException("Failed to delete user"));
 
-            //remove the user from all user friend lists
-            for(User user : userRepo.findAll()){
-                user.removeFriend(u);
+        List<Friendship> friendshipsToRemove = new ArrayList<>();
+        friendshipRepo.findAll().forEach(friendship -> {
+            if (friendship.getUser1().equals(user) || friendship.getUser2().equals(user)) {
+                friendshipsToRemove.add(friendship);
             }
-        }catch (Exception e){
-            throw new RuntimeException(e.getMessage());
-        }
+        });
+
+        friendshipsToRemove.forEach(friendship -> friendshipRepo.delete(friendship.getId()));
+        userRepo.findAll().forEach(u -> u.removeFriend(user));
     }
 
     /**
-     * @param username1 the username of the first user
-     * @param username2 the username of the second user
-     *                  Adds a friendship between two users
+     * Adds a friendship between two users
+     * @param username1 the first user
+     * @param username2 the second user
      */
     @Override
     public void addFriendship(String username1, String username2) {
-        try{
-            User u1 = (User) this.getUserByUsername(username1);
-            User u2 = (User) this.getUserByUsername(username2);
-            if(u1 == null || u2 == null){
-                throw new Exception("One or both users do not exist");
-            }
-            friendshipRepo.save(new Friendship(u1,u2));
-            u1.addFriend(u2);
-            u2.addFriend(u1);
-        }catch (Exception e){
-            throw new RuntimeException(e.getMessage());
-        }
+        User u1 = Optional.ofNullable(getUserByUsername(username1))
+                .orElseThrow(() -> new RuntimeException("User " + username1 + " does not exist"));
+        User u2 = Optional.ofNullable(getUserByUsername(username2))
+                .orElseThrow(() -> new RuntimeException("User " + username2 + " does not exist"));
+
+        Friendship friendship = new Friendship(u1, u2);
+        friendshipRepo.save(friendship).orElseThrow(() -> new RuntimeException("Friendship could not be saved"));
+        u1.addFriend(u2);
+        u2.addFriend(u1);
     }
 
     /**
-     * @param username1 the username of the first user
-     * @param username2 the username of the second user
-     *                  Removes a friendship between two users
+     * Removes a friendship between two users
+     * @param username1 the first user
+     * @param username2 the second user
      */
     @Override
     public void removeFriendship(String username1, String username2) {
-        try{
-            User u1 = (User) this.getUserByUsername(username1);
-            User u2 = (User) this.getUserByUsername(username2);
-            if(u1 == null || u2 == null){
-                throw new Exception("One or both users do not exist");
-            }
-            Iterable<Friendship> friendships = friendshipRepo.findAll();
-            for (Friendship f : friendships){
-                if(f.getUser1().equals(u1) && f.getUser2().equals(u2) || f.getUser1().equals(u2) && f.getUser2().equals(u1)){
-                    friendshipRepo.delete(f.getId());
-                    u1.removeFriend(u2);
-                    u2.removeFriend(u1);
-                    return;
-                }
-            }
-        }catch (Exception e){
-            throw new RuntimeException(e.getMessage());
-        }
+        User u1 = Optional.ofNullable(getUserByUsername(username1))
+                .orElseThrow(() -> new RuntimeException("User " + username1 + " does not exist"));
+        User u2 = Optional.ofNullable(getUserByUsername(username2))
+                .orElseThrow(() -> new RuntimeException("User " + username2 + " does not exist"));
 
+        friendshipRepo.findAll().forEach(friendship -> {
+            if ((friendship.getUser1().equals(u1) && friendship.getUser2().equals(u2)) ||
+                    (friendship.getUser1().equals(u2) && friendship.getUser2().equals(u1))) {
+                friendshipRepo.delete(friendship.getId());
+                u1.removeFriend(u2);
+                u2.removeFriend(u1);
+            }
+        });
     }
 
     /**
-     * @return all users in the social network
-     *       Returns an ArrayList of User objects
+     * Returns a list of all users in the social network
+     * @return a list of all users
      */
     @Override
-    public ArrayList<User> getAllUsers() {
-        ArrayList<User> users = new ArrayList<>();
-        for(User u : userRepo.findAll()){
-            users.add(u);
-        }
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        userRepo.findAll().forEach(users::add);
         return users;
     }
 
     /**
-     * @return all friendships in the social network
-     *      Returns an ArrayList of Friendship objects
+     * Returns a list of all friendships in the social network
+     * @return a list of all friendships
      */
     @Override
-    public ArrayList<Friendship> getAllFriendships() {
-        ArrayList<Friendship> friendships = new ArrayList<>();
-        for(Friendship f : friendshipRepo.findAll()){
-            friendships.add(f);
-        }
+    public List<Friendship> getAllFriendships() {
+        List<Friendship> friendships = new ArrayList<>();
+        friendshipRepo.findAll().forEach(friendships::add);
         return friendships;
     }
 
     /**
-     * @return the biggest community in the social network
-     *     Returns an ArrayList of User objects
-     *     The biggest community is the connected component with the most users
+     * Returns the biggest community in the social network
+     * @return the biggest community
      */
     @Override
-    public ArrayList<User> getBiggestComunity() {
-        //get all connected components in the friendship graph
-        Iterable<User> users = userRepo.findAll();
-        ArrayList<User> visited = new ArrayList<>();
-        ArrayList<User> biggestCommunity = new ArrayList<>();
-        int max = 0;
-        for(User u : users){
-            if(!visited.contains(u)){
-                ArrayList<User> connectedComponent = dfs(u,visited);
-                if(connectedComponent.size() > max){
-                    max = connectedComponent.size();
-                    biggestCommunity = connectedComponent;
+    public List<User> getBiggestCommunity() {
+        Set<User> visited = new HashSet<>();
+        List<User> biggestCommunity = new ArrayList<>();
+
+        userRepo.findAll().forEach(user -> {
+            if (!visited.contains(user)) {
+                List<User> community = dfs(user, visited);
+                if (community.size() > biggestCommunity.size()) {
+                    biggestCommunity.clear();
+                    biggestCommunity.addAll(community);
                 }
             }
-        }
+        });
         return biggestCommunity;
     }
 
     /**
-     * @return the number of communities in the social network
-     *   Returns an integer
+     * Returns the number of communities in the social network
+     * @return the number of communities
      */
     @Override
     public int getNumberOfCommunities() {
-        //find the number of connected components in the friendship graph
-        Iterable<User> users = userRepo.findAll();
-        ArrayList<User> visited = new ArrayList<>();
-        int count = 0;
-        for(User u : users){
-            if(!visited.contains(u)){
-                count++;
-                ArrayList<User> connectedComponent = dfs(u,visited);
+        Set<User> visited = new HashSet<>();
+        AtomicInteger count = new AtomicInteger();
+
+        userRepo.findAll().forEach(user -> {
+            if (!visited.contains(user)) {
+                count.getAndIncrement();
+                dfs(user, visited);
             }
-        }
-        return count;
+        });
+        return count.get();
     }
 
     /**
-     * @param u the user
-     * @param visited the list of visited users
-     * @return the connected component of the user
-     *      Returns an ArrayList of User objects
+     * Performs a depth-first search on the graph of users
+     * @param user the user to start the search from
+     * @param visited a set of visited users
+     * @return a list of connected users
      */
-    private ArrayList<User> dfs(User u, ArrayList<User> visited) {
-        ArrayList<User> connectedComponent = new ArrayList<>();
+    private List<User> dfs(User user, Set<User> visited) {
+        List<User> connectedComponent = new ArrayList<>();
+        visited.add(user);
+        connectedComponent.add(user);
 
-        // Mark the current user as visited and add to the current component
-        visited.add(u);
-        connectedComponent.add(u);
-
-        // Explore friends
-        for (User friend : u.getFriends()) {
+        user.getFriends().forEach(friend -> {
             if (!visited.contains(friend)) {
-                // Print the friend
-                // Recursively visit friends of the current user
-                ArrayList<User> list = dfs(friend, visited);
-                connectedComponent.addAll(list);  // Add all the friends found
+                connectedComponent.addAll(dfs(friend, visited));
             }
-        }
+        });
         return connectedComponent;
     }
-
 }
