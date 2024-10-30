@@ -76,10 +76,15 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
 
     @Override
     public Optional<E> save(E entity) {
+        // Wrap the result of super.save in Optional to handle potential null values
         Optional<E> existingEntity = super.save(entity);
+
+        // Save to file if the entity was successfully saved (no prior instance)
         if (existingEntity.isEmpty()) {
             saveToFile();
         }
+
+        // Return the existing entity if it was already present, or empty if newly saved
         return existingEntity;
     }
 

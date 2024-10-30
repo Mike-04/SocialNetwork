@@ -62,7 +62,11 @@ public class Service implements Controller {
             throw new RuntimeException("User already exists");
         }
         User user = new User(firstName, lastName, username);
-        userRepo.save(user).orElseThrow(() -> new RuntimeException("User could not be saved"));
+        // Save the user and throw an exception if it fails
+        //get the return of save
+        userRepo.save(user).ifPresent(u -> {
+            throw new RuntimeException("Failed to add user");
+        });
     }
 
     /**
@@ -100,7 +104,9 @@ public class Service implements Controller {
                 .orElseThrow(() -> new RuntimeException("User " + username2 + " does not exist"));
 
         Friendship friendship = new Friendship(u1, u2);
-        friendshipRepo.save(friendship).orElseThrow(() -> new RuntimeException("Friendship could not be saved"));
+        friendshipRepo.save(friendship).ifPresent(f -> {
+            throw new RuntimeException("Failed to add friendship");
+        });
         u1.addFriend(u2);
         u2.addFriend(u1);
     }

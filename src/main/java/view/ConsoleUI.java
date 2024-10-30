@@ -9,7 +9,7 @@ import java.util.Scanner;
  * Contains the methods for the console user interface
  */
 public class ConsoleUI {
-    private Service service;
+    private final Service service;
 
     /**
      * @param service the service to be used
@@ -73,7 +73,7 @@ public class ConsoleUI {
                     System.out.println("*face palms*\nYou can't read?");
             }
             }catch(Exception e){
-                System.out.println("*face palms*");
+                System.out.println("*face palms*"+e.getMessage());
             }
         }
     }
