@@ -78,7 +78,8 @@ public class Service implements Controller {
         User user = Optional.ofNullable(getUserByUsername(username))
                 .orElseThrow(() -> new RuntimeException("User does not exist"));
 
-        userRepo.delete(user.getId()).orElseThrow(() -> new RuntimeException("Failed to delete user"));
+
+        userRepo.delete(user.getId());
 
         List<Friendship> friendshipsToRemove = new ArrayList<>();
         friendshipRepo.findAll().forEach(friendship -> {
@@ -123,14 +124,16 @@ public class Service implements Controller {
         User u2 = Optional.ofNullable(getUserByUsername(username2))
                 .orElseThrow(() -> new RuntimeException("User " + username2 + " does not exist"));
 
-        friendshipRepo.findAll().forEach(friendship -> {
-            if ((friendship.getUser1().equals(u1) && friendship.getUser2().equals(u2)) ||
-                    (friendship.getUser1().equals(u2) && friendship.getUser2().equals(u1))) {
-                friendshipRepo.delete(friendship.getId());
+        //to change the way we iterate
+        Iterable<Friendship> friendships = friendshipRepo.findAll();
+        for (Friendship f : friendships){
+            if(f.getUser1().equals(u1) && f.getUser2().equals(u2) || f.getUser1().equals(u2) && f.getUser2().equals(u1)){
+                friendshipRepo.delete(f.getId());
                 u1.removeFriend(u2);
                 u2.removeFriend(u1);
+                return;
             }
-        });
+        }
     }
 
     /**
@@ -204,7 +207,6 @@ public class Service implements Controller {
         List<User> connectedComponent = new ArrayList<>();
         visited.add(user);
         connectedComponent.add(user);
-
         user.getFriends().forEach(friend -> {
             if (!visited.contains(friend)) {
                 connectedComponent.addAll(dfs(friend, visited));

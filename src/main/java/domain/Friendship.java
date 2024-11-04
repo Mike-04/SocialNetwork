@@ -22,6 +22,13 @@ public class Friendship extends Entity<UUID>{
         this.friendshipDate = LocalDateTime.now();
     }
 
+    public Friendship(User user1, User user2, LocalDateTime date) {
+        this.user1 = user1;
+        this.user2 = user2;
+        this.setId(UUID.randomUUID());
+        this.friendshipDate = date;
+    }
+
     public User getUser1() {
         return user1;
     }
