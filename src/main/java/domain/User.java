@@ -82,6 +82,10 @@ public class User extends Entity<UUID>{
         return friends;
     }
 
+    public void setFriends(List<User> friends) {
+        this.friends = (ArrayList<User>) friends;
+    }
+
     public void addFriend(User friend) {
         friends.add(friend);
     }

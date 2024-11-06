@@ -73,7 +73,7 @@ public class ConsoleUI {
                     System.out.println("*face palms*\nYou can't read?");
             }
             }catch(Exception e){
-                System.out.println("*face palms*"+e.getMessage());
+                System.out.println("*face palms* "+e.getMessage());
             }
         }
     }
@@ -165,3 +165,5 @@ public class ConsoleUI {
     }
 
 }
+
+
