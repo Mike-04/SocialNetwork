@@ -2,6 +2,7 @@ package repo.database;
 
 import domain.Friendship;
 import domain.User;
+import domain.validators.FriendshipValidator;
 import domain.validators.Validator;
 
 import java.sql.Connection;
@@ -15,8 +16,11 @@ import java.util.UUID;
 
 public class FriendshipDatabaseRepository extends AbstractDatabaseRepository<UUID, Friendship> {
 
+    FriendshipValidator friendshipValidator;
+
     public FriendshipDatabaseRepository(Connection connection, Validator<Friendship> validator) {
         super(connection,validator);
+        this.friendshipValidator = (FriendshipValidator) validator;
     }
 
     @Override
@@ -95,6 +99,7 @@ public class FriendshipDatabaseRepository extends AbstractDatabaseRepository<UUI
 
     @Override
     public Optional<Friendship> save(Friendship entity) {
+        friendshipValidator.validate(entity);
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO friendships (id, user1_id, user2_id, friendship_date) VALUES (?, ?, ?, ?)");
             preparedStatement.setObject(1, entity.getId());

@@ -114,6 +114,18 @@ public class UserDatabaseRepository extends AbstractDatabaseRepository<UUID, Use
             return null;
         }
 
+        //for every user swap the friend objects with the actual user objects
+        for (User user : users) {
+            ArrayList<User> friends = new ArrayList<>();
+            for (User friend : user.getFriends()) {
+                for (User u : users) {
+                    if (u.getId().equals(friend.getId())) {
+                        friends.add(u);
+                    }
+                }
+            }
+            user.setFriends(friends);
+        }
         return users;
     }
 
@@ -154,13 +166,15 @@ public class UserDatabaseRepository extends AbstractDatabaseRepository<UUID, Use
     public Optional<User> delete(UUID uuid) {
         //use prepared statement to delete the user from the database
         try {
+            Optional<User> user = findOne(uuid);
             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM users WHERE id = ?");
             preparedStatement.setObject(1, uuid);
             preparedStatement.executeUpdate();
-            User user = findOne(uuid).orElseThrow(() -> new RuntimeException("User does not exist"));
+
+            System.out.println("User deleted: " + user);
+            return user;
         } catch (SQLException e) {
             return Optional.empty();
         }
-        return Optional.empty();
     }
 }

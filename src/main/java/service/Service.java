@@ -75,9 +75,7 @@ public class Service implements Controller {
      */
     @Override
     public void deleteUser(String username) {
-        User user = Optional.ofNullable(getUserByUsername(username))
-                .orElseThrow(() -> new RuntimeException("User does not exist"));
-
+        User user = Optional.ofNullable(getUserByUsername(username)).orElseThrow(() -> new RuntimeException("User does not exist1"));
 
         userRepo.delete(user.getId());
 
@@ -108,6 +106,7 @@ public class Service implements Controller {
         friendshipRepo.save(friendship).ifPresent(f -> {
             throw new RuntimeException("Failed to add friendship");
         });
+
         u1.addFriend(u2);
         u2.addFriend(u1);
     }
@@ -209,6 +208,8 @@ public class Service implements Controller {
         connectedComponent.add(user);
         user.getFriends().forEach(friend -> {
             if (!visited.contains(friend)) {
+                //print the friends of the friend
+//                friend.getFriends().forEach(System.out::println);
                 connectedComponent.addAll(dfs(friend, visited));
             }
         });
