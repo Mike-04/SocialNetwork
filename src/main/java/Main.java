@@ -48,8 +48,10 @@ public class Main {
         // print all friendships
         Service service = new Service(userRepo, friendshipRepo);
         //print all the friends of all users
-        ConsoleUI consoleUI = new ConsoleUI(service);
-        consoleUI.start();
+//        ConsoleUI consoleUI = new ConsoleUI(service);
+//        consoleUI.start();
+
+
 
     }
 
