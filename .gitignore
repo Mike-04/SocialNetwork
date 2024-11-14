@@ -43,3 +43,5 @@ bin/
 
 ### database.properties ###
 database.properties
+# Ignore Gradle build output directory
+build
