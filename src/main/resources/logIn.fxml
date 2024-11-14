@@ -6,9 +6,13 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="logIn">
    <children>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="200.0" pickOnBounds="true" preserveRatio="true"/>
-      <Button layoutX="274.0" layoutY="216.0" mnemonicParsing="false" text="Log In" />
-      <TextField layoutX="225.0" layoutY="187.0" />
+      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="200.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@facepalm.png" />
+         </image>
+      </ImageView>
+      <Button layoutX="274.0" layoutY="216.0" mnemonicParsing="false" onMouseClicked="#login" text="Log In" />
+      <TextField fx:id="usernamebox" layoutX="225.0" layoutY="187.0" prefHeight="26.0" prefWidth="150.0" />
       <Label layoutX="257.0" layoutY="150.0" text="Input username" />
    </children>
 </AnchorPane>

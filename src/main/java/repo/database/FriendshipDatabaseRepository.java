@@ -42,7 +42,7 @@ public class FriendshipDatabaseRepository extends AbstractDatabaseRepository<UUI
             preparedStatement2.setObject(1, resultSet.getObject("user2"));
             ResultSet resultSet2 = preparedStatement2.executeQuery();
             User user2 = new User(resultSet2.getString("first_name"), resultSet2.getString("last_name"), resultSet2.getString("username"));
-            Friendship friendship = new Friendship(user1, user2, resultSet.getTimestamp("date").toLocalDateTime());
+            Friendship friendship = new Friendship(user1, user2, resultSet.getTimestamp("date").toLocalDateTime(), resultSet.getInt("status"));
             friendship.setId((UUID) resultSet.getObject("id"));
             return Optional.of(friendship);
         } catch (SQLException e) {
@@ -72,7 +72,7 @@ public class FriendshipDatabaseRepository extends AbstractDatabaseRepository<UUI
                 User user2 = new User(resultSet2.getString("first_name"), resultSet2.getString("last_name"), resultSet2.getString("username"));
                 user2.setId((UUID) resultSet2.getObject("id"));
                 //create the friendship
-                Friendship friendship = new Friendship(user1, user2, resultSet.getTimestamp("friendship_date").toLocalDateTime());
+                Friendship friendship = new Friendship(user1, user2, resultSet.getTimestamp("friendship_date").toLocalDateTime(), resultSet.getInt("status"));
                 friendship.setId((UUID) resultSet.getObject("id"));
                 friendships.add(friendship);
             }
@@ -84,12 +84,14 @@ public class FriendshipDatabaseRepository extends AbstractDatabaseRepository<UUI
 
     @Override
     public Optional<Friendship> update(Friendship entity) {
+        System.out.println(entity);
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE friendships SET user1_id = ?, user1_id = ?, friendship_date = ? WHERE id = ?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE friendships SET user1_id = ?, user2_id = ?, friendship_date = ? , status = ? WHERE id = ?");
             preparedStatement.setObject(1, entity.getUser1().getId());
             preparedStatement.setObject(2, entity.getUser2().getId());
             preparedStatement.setObject(3, entity.getFriendshipDate());
-            preparedStatement.setObject(4, entity.getId());
+            preparedStatement.setObject(4, entity.getStatus());
+            preparedStatement.setObject(5, entity.getId());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             return Optional.ofNullable(entity);
@@ -101,11 +103,12 @@ public class FriendshipDatabaseRepository extends AbstractDatabaseRepository<UUI
     public Optional<Friendship> save(Friendship entity) {
         friendshipValidator.validate(entity);
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO friendships (id, user1_id, user2_id, friendship_date) VALUES (?, ?, ?, ?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO friendships (id, user1_id, user2_id, friendship_date,status) VALUES (?, ?, ?, ?, ?)");
             preparedStatement.setObject(1, entity.getId());
             preparedStatement.setObject(2, entity.getUser1().getId());
             preparedStatement.setObject(3, entity.getUser2().getId());
             preparedStatement.setObject(4, entity.getFriendshipDate());
+            preparedStatement.setObject(5, entity.getStatus());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             return Optional.ofNullable(entity);

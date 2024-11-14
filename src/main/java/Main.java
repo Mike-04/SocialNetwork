@@ -46,6 +46,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+
         launch(args);
 
 
@@ -55,16 +56,10 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         // do some testing here
-        Connection connection = getConcetion();
-        System.out.println("Connected to the database");
-        Validator<User> userValidator = new UserValidator();
-        Validator<Friendship> friendshipValidator = new FriendshipValidator();
+
 //        Repository<UUID, User> userRepo = new UserFileRepo("users.txt", userValidator);
 //        Repository<UUID, Friendship> friendshipRepo = new FriendshipFileRepo("friendships.txt", friendshipValidator, userRepo);
-        Repository<UUID, User> userRepo = new UserDatabaseRepository(connection, userValidator);
-        Repository<UUID, Friendship> friendshipRepo = new FriendshipDatabaseRepository(connection, friendshipValidator);
-        // print all friendships
-        Service service = new Service(userRepo, friendshipRepo);
+
         //print all the friends of all users
         initView(stage);
         stage.show();
@@ -74,8 +69,18 @@ public class Main extends Application {
         FXMLLoader stageLoader = new FXMLLoader();
         stageLoader.setLocation(getClass().getResource("logIn.fxml"));
         AnchorPane layout = stageLoader.load();
+        logIn controller = stageLoader.getController();
+        Connection connection = getConcetion();
+        System.out.println("Connected to the database");
+        Validator<User> userValidator = new UserValidator();
+        Validator<Friendship> friendshipValidator = new FriendshipValidator();
+        Repository<UUID, Friendship> friendshipRepo = new FriendshipDatabaseRepository(connection, friendshipValidator);
+        Repository<UUID, User> userRepo = new UserDatabaseRepository(connection, userValidator, friendshipRepo);
+        // print all friendships
+        Service service = new Service(userRepo, friendshipRepo);
+        controller.setService(service);
         primaryStage.setScene(new Scene(layout));
-        primaryStage.setTitle("Social Network");
+        primaryStage.setTitle("FacePalm");
         primaryStage.show();
     }
 }

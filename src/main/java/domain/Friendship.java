@@ -14,19 +14,24 @@ public class Friendship extends Entity<UUID>{
     User user1;
     User user2;
     LocalDateTime friendshipDate;
+    int status;
 
     public Friendship(User user1, User user2) {
         this.user1 = user1;
         this.user2 = user2;
         this.setId(UUID.randomUUID());
         this.friendshipDate = LocalDateTime.now();
+        this.status = 1;
     }
 
-    public Friendship(User user1, User user2, LocalDateTime date) {
+    public Friendship(User user1, User user2, LocalDateTime date, int status) {
         this.user1 = user1;
         this.user2 = user2;
         this.setId(UUID.randomUUID());
         this.friendshipDate = date;
+        this.status = status;
+        //0 - pending
+        //1 - accepted
     }
 
     public User getUser1() {
@@ -49,6 +54,14 @@ public class Friendship extends Entity<UUID>{
         return friendshipDate;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     public void setFriendshipDate(LocalDateTime friendshipDate) {
         this.friendshipDate = friendshipDate;
     }
@@ -59,6 +72,7 @@ public class Friendship extends Entity<UUID>{
                 "user1=" + user1 +
                 ", user2=" + user2 +
                 ", friendshipDate=" + friendshipDate +
+                ", status=" + status +
                 '}';
     }
 

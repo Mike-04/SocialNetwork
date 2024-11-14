@@ -4,6 +4,7 @@ import domain.Friendship;
 import domain.User;
 import repo.Repository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -14,7 +15,8 @@ public class Service implements Controller {
 
     /**
      * Creates a new Service object
-     * @param userRepo the user repository
+     *
+     * @param userRepo       the user repository
      * @param friendshipRepo the friendship repository
      */
     public Service(Repository<UUID, User> userRepo, Repository<UUID, Friendship> friendshipRepo) {
@@ -24,6 +26,7 @@ public class Service implements Controller {
 
     /**
      * Returns a list of all friends of a user
+     *
      * @param username the username of the user
      * @return a list of all friends of the user
      */
@@ -37,10 +40,11 @@ public class Service implements Controller {
 
     /**
      * Returns the user with the given username
+     *
      * @param username the username of the user
      * @return the user with the given username, or null if not found
      */
-    protected User getUserByUsername(String username) {
+    public User getUserByUsername(String username) {
         final User[] foundUser = {null}; // Use an array to hold the found user reference
         userRepo.findAll().forEach(user -> {
             if (user.getUsername().equals(username)) {
@@ -52,9 +56,10 @@ public class Service implements Controller {
 
     /**
      * Adds a user to the social network
+     *
      * @param firstName the first name of the user
-     * @param lastName the last name of the user
-     * @param username the username of the user
+     * @param lastName  the last name of the user
+     * @param username  the username of the user
      */
     @Override
     public void addUser(String firstName, String lastName, String username) {
@@ -71,6 +76,7 @@ public class Service implements Controller {
 
     /**
      * Deletes a user from the social network
+     *
      * @param username the username of the user to be deleted
      */
     @Override
@@ -92,6 +98,7 @@ public class Service implements Controller {
 
     /**
      * Adds a friendship between two users
+     *
      * @param username1 the first user
      * @param username2 the second user
      */
@@ -113,6 +120,7 @@ public class Service implements Controller {
 
     /**
      * Removes a friendship between two users
+     *
      * @param username1 the first user
      * @param username2 the second user
      */
@@ -125,8 +133,8 @@ public class Service implements Controller {
 
         //to change the way we iterate
         Iterable<Friendship> friendships = friendshipRepo.findAll();
-        for (Friendship f : friendships){
-            if(f.getUser1().equals(u1) && f.getUser2().equals(u2) || f.getUser1().equals(u2) && f.getUser2().equals(u1)){
+        for (Friendship f : friendships) {
+            if (f.getUser1().equals(u1) && f.getUser2().equals(u2) || f.getUser1().equals(u2) && f.getUser2().equals(u1)) {
                 friendshipRepo.delete(f.getId());
                 u1.removeFriend(u2);
                 u2.removeFriend(u1);
@@ -137,6 +145,7 @@ public class Service implements Controller {
 
     /**
      * Returns a list of all users in the social network
+     *
      * @return a list of all users
      */
     @Override
@@ -148,6 +157,7 @@ public class Service implements Controller {
 
     /**
      * Returns a list of all friendships in the social network
+     *
      * @return a list of all friendships
      */
     @Override
@@ -159,6 +169,7 @@ public class Service implements Controller {
 
     /**
      * Returns the biggest community in the social network
+     *
      * @return the biggest community
      */
     @Override
@@ -180,6 +191,7 @@ public class Service implements Controller {
 
     /**
      * Returns the number of communities in the social network
+     *
      * @return the number of communities
      */
     @Override
@@ -198,7 +210,8 @@ public class Service implements Controller {
 
     /**
      * Performs a depth-first search on the graph of users
-     * @param user the user to start the search from
+     *
+     * @param user    the user to start the search from
      * @param visited a set of visited users
      * @return a list of connected users
      */
@@ -214,5 +227,48 @@ public class Service implements Controller {
             }
         });
         return connectedComponent;
+    }
+
+    //get user friends requests
+    public List<User> getFriendRequests(String username) {
+        User user = getUserByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("User does not exist");
+        }
+        List<User> friendRequests = new ArrayList<>();
+        //get all friendships from the repo where the user is the second user
+        friendshipRepo.findAll().forEach(friendship -> {
+            if (friendship.getUser1().equals(user) && friendship.getStatus() == 0) {
+                friendRequests.add(friendship.getUser2());
+            }
+        });
+        return friendRequests;
+    }
+
+    //accept a friend request
+    public void acceptFriendRequest(String username1, String username2) {
+        //accept the friendship between the two users
+        User u1 = Optional.ofNullable(getUserByUsername(username1))
+                .orElseThrow(() -> new RuntimeException("User " + username1 + " does not exist"));
+        User u2 = Optional.ofNullable(getUserByUsername(username2))
+                .orElseThrow(() -> new RuntimeException("User " + username2 + " does not exist"));
+
+        //update the friendship status
+        Iterable<Friendship> friendships = friendshipRepo.findAll();
+        for (Friendship f : friendships) {
+            if (f.getUser1().equals(u1) && f.getUser2().equals(u2) && f.getStatus() == 0) {
+                //update the friendship status by making a new friendship with the same id
+                Friendship friendship = new Friendship(u1, u2, f.getFriendshipDate(), 1);
+                friendship.setId(f.getId());
+                System.out.println(friendship.getId());
+                System.out.println(f.getId());
+                System.out.println(friendship);
+                friendshipRepo.update(friendship);
+                u1.addFriend(u2);
+                u2.addFriend(u1);
+                return;
+            }
+        }
+
     }
 }
