@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="LoggedIn"
-            prefHeight="400.0" prefWidth="600.0">
+<AnchorPane prefHeight="393.0" prefWidth="864.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="LoggedIn">
+   <children>
+      <Button layoutX="756.0" layoutY="14.0" mnemonicParsing="false" onAction="#deleteAccount" text="Delete Account" textFill="RED" />
+      <TableView fx:id="friendstable" layoutX="332.0" layoutY="50.0" prefHeight="200.0" prefWidth="522.0">
+        <columns>
+           <TableColumn fx:id="firstNameColumn" text="First Name" />
+           <TableColumn fx:id="lastNameColumn" text="Last Name" />
+           <TableColumn fx:id="usernameColumn" text="Username" />
+            <TableColumn fx:id="dateColumn" prefWidth="160.0" text="Date" />
+            <TableColumn fx:id="actionsColumn" minWidth="0.0" prefWidth="160.0" text="Actions" />
+        </columns>
+      </TableView>
+       <TextField fx:id="searchField" layoutX="14.0" layoutY="14.0" onKeyReleased="#handleSearch" promptText="Search for users..." />
 
+       <TableView fx:id="searchResultsTable" layoutX="14.0" layoutY="50.0" prefHeight="200.0" prefWidth="290.0">
+           <columns>
+               <TableColumn fx:id="usernameColumnSearch" editable="false" text="Username" />
+               <TableColumn fx:id="firstNameColumnSearch" editable="false" text="First Name" />
+               <TableColumn fx:id="lastNameColumnSearch" editable="false" prefWidth="69.0" text="Last Name" />
+               <TableColumn fx:id="actionsColumnSearch" editable="false" prefWidth="59.0" text="Actions" />
+           </columns>
+       </TableView>
+      <Button layoutX="687.0" layoutY="14.0" mnemonicParsing="false" onAction="#logout" text="Log Out" />
+   </children>
 </AnchorPane>

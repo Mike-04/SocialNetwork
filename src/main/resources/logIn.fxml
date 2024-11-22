@@ -6,13 +6,23 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="logIn">
    <children>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="200.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="228.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@facepalm.png" />
          </image>
       </ImageView>
-      <Button layoutX="274.0" layoutY="216.0" mnemonicParsing="false" onMouseClicked="#login" text="Log In" />
-      <TextField fx:id="usernamebox" layoutX="225.0" layoutY="187.0" prefHeight="26.0" prefWidth="150.0" />
-      <Label layoutX="257.0" layoutY="150.0" text="Input username" />
+      <Label layoutX="264.0" layoutY="150.0" text="Input username" />
+      <TextField fx:id="usernamebox" layoutX="230.0" layoutY="167.0" onAction="#login" prefHeight="26.0" prefWidth="152.0" />
+      <Button layoutX="281.0" layoutY="200.0" mnemonicParsing="false" onMouseClicked="#login" onAction="#login" text="Log In" />
+
+
+      <TextField fx:id="fnamebox" layoutX="230.0" layoutY="269.0" prefHeight="26.0" prefWidth="71.0" />
+      <TextField fx:id="lnamebox" layoutX="311.0" layoutY="269.0" prefHeight="26.0" prefWidth="71.0" />
+      <TextField fx:id="unamebox" layoutX="230.0" layoutY="317.0" prefHeight="26.0" prefWidth="152.0" />
+      <Button layoutX="280.0" layoutY="361.0" mnemonicParsing="false" onAction="#signUp" text="Sign Up" />
+      <Label layoutX="230.0" layoutY="249.0" text="First name" />
+      <Label layoutX="311.0" layoutY="249.0" text="Last name" />
+      <Label layoutX="230.0" layoutY="299.0" text="Username" />
+      <Label layoutX="300.0" layoutY="232.0" text="or" />
    </children>
 </AnchorPane>

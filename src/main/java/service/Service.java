@@ -238,8 +238,8 @@ public class Service implements Controller {
         List<User> friendRequests = new ArrayList<>();
         //get all friendships from the repo where the user is the second user
         friendshipRepo.findAll().forEach(friendship -> {
-            if (friendship.getUser1().equals(user) && friendship.getStatus() == 0) {
-                friendRequests.add(friendship.getUser2());
+            if (friendship.getUser2().equals(user) && friendship.getStatus() == 0) {
+                friendRequests.add(friendship.getUser1());
             }
         });
         return friendRequests;
@@ -256,9 +256,9 @@ public class Service implements Controller {
         //update the friendship status
         Iterable<Friendship> friendships = friendshipRepo.findAll();
         for (Friendship f : friendships) {
-            if (f.getUser1().equals(u1) && f.getUser2().equals(u2) && f.getStatus() == 0) {
+            if (f.getUser1().equals(u1) && f.getUser2().equals(u2) && f.getStatus() == 0 || f.getUser1().equals(u2) && f.getUser2().equals(u1) && f.getStatus() == 0) {
                 //update the friendship status by making a new friendship with the same id
-                Friendship friendship = new Friendship(u1, u2, f.getFriendshipDate(), 1);
+                Friendship friendship = new Friendship(u1, u2, LocalDateTime.now(), 1);
                 friendship.setId(f.getId());
                 System.out.println(friendship.getId());
                 System.out.println(f.getId());
@@ -271,4 +271,77 @@ public class Service implements Controller {
         }
 
     }
+
+    public ArrayList<User> getFriendsAndFriendRequestOfUser(String username) {
+        ArrayList<User> friends = new ArrayList<>();
+        User user = getUserByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("User does not exist");
+        }
+        getFriendsOfUser(username).forEach(friends::add);
+        getFriendRequests(username).forEach(friends::add);
+        friends.forEach(f -> System.out.println(f.getUsername()));
+        return friends;
+    }
+    public int getFriendshipStatus(String username1, String username2) {
+        User u1 = Optional.ofNullable(getUserByUsername(username1))
+                .orElseThrow(() -> new RuntimeException("User " + username1 + " does not exist"));
+        User u2 = Optional.ofNullable(getUserByUsername(username2))
+                .orElseThrow(() -> new RuntimeException("User " + username2 + " does not exist"));
+
+        Iterable<Friendship> friendships = friendshipRepo.findAll();
+        for (Friendship f : friendships) {
+            if (f.getUser1().equals(u1) && f.getUser2().equals(u2) || f.getUser1().equals(u2) && f.getUser2().equals(u1)) {
+                return f.getStatus();
+            }
+        }
+        return -1;
+    }
+
+    public List<User> getPotentialFriend(String username) {
+        ArrayList<User> potentialFriends = new ArrayList<>();
+
+        //get all users that are not friends with the user and are not the user or do not have a pending friendship
+        getAllUsers().forEach(user -> {
+            System.out.println(getFriendshipStatus(username, user.getUsername())  +" " + user.getUsername());
+            if (!user.getUsername().equals(username) && !getFriendsOfUser(username).contains(user) && getFriendshipStatus(username, user.getUsername()) == -1) {
+                potentialFriends.add(user);
+            }
+        });
+        for (User u : potentialFriends) {
+            System.out.println(u.getUsername());
+        }
+        return potentialFriends;
+    }
+
+    public User getFriendshipSender(String user1, String user2){
+        User u1 = Optional.ofNullable(getUserByUsername(user1))
+                .orElseThrow(() -> new RuntimeException("User " + user1 + " does not exist"));
+        User u2 = Optional.ofNullable(getUserByUsername(user2))
+                .orElseThrow(() -> new RuntimeException("User " + user2 + " does not exist"));
+
+        Iterable<Friendship> friendships = friendshipRepo.findAll();
+        for (Friendship f : friendships) {
+            if (f.getUser1().equals(u1) && f.getUser2().equals(u2) && f.getStatus() == 0) {
+                return f.getUser1();
+            }
+        }
+        return null;
+    }
+
+    public LocalDateTime getFriendshipDate(String user1, String user2){
+        User u1 = Optional.ofNullable(getUserByUsername(user1))
+                .orElseThrow(() -> new RuntimeException("User " + user1 + " does not exist"));
+        User u2 = Optional.ofNullable(getUserByUsername(user2))
+                .orElseThrow(() -> new RuntimeException("User " + user2 + " does not exist"));
+
+        Iterable<Friendship> friendships = friendshipRepo.findAll();
+        for (Friendship f : friendships) {
+            if (f.getUser1().equals(u1) && f.getUser2().equals(u2) || f.getUser1().equals(u2) && f.getUser2().equals(u1)) {
+                return f.getFriendshipDate();
+            }
+        }
+        return null;
+    }
+
 }

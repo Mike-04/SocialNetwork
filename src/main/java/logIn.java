@@ -11,10 +11,19 @@ import java.io.IOException;
 
 public class logIn {
     private String username;
+    private String firstName;
+    private String lastName;
     private Service service;
 
     @FXML
     private TextField usernamebox;
+    @FXML
+    private TextField unamebox;
+    @FXML
+    private TextField fnamebox;
+    @FXML
+    private TextField lnamebox;
+
 
     public void setService(Service service) {
         this.service = service;
@@ -46,6 +55,40 @@ public class logIn {
             alert.setTitle("Login Error");
             alert.setHeaderText(null);
             alert.setContentText("Username does not exist.");
+            alert.showAndWait();
+        }
+    }
+
+    public void signUp()
+    {
+        firstName = fnamebox.getText();
+        lastName = lnamebox.getText();
+        username = unamebox.getText();
+        if (service.getUserByUsername(username) == null) {
+            service.addUser(firstName, lastName, username);
+            System.out.printf("Welcome to the FacePalm social network\n");
+            System.out.printf("You are logged in as %s\n", username);
+
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("loggedIn.fxml"));
+                Parent root = loader.load();
+                Stage stage = (Stage) usernamebox.getScene().getWindow();
+                //set the service for the controller
+                LoggedIn controller = loader.getController();
+                controller.setUser(service.getUserByUsername(username));
+                controller.setService(service);
+
+                stage.setScene(new Scene(root));
+                stage.setTitle("Logged In");
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Sign Up Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Username already exists.");
             alert.showAndWait();
         }
     }
