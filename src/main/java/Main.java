@@ -15,11 +15,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import repo.database.FriendshipDatabaseRepository;
 import repo.database.UserDatabaseRepository;
-import repo.file.*;
 import repo.*;
 import domain.validators.*;
 import service.*;
-import view.*;
 
 public class Main extends Application {
 

@@ -1,6 +1,6 @@
 package view;
 
-import service.Service;
+import service.Service_Old;
 
 import java.util.Scanner;
 
@@ -9,14 +9,14 @@ import java.util.Scanner;
  * Contains the methods for the console user interface
  */
 public class ConsoleUI {
-    private final Service service;
+    private final Service_Old serviceOld;
 
     /**
-     * @param service the service to be used
+     * @param serviceOld the service to be used
      *          Creates a new ConsoleUI object
      */
-    public ConsoleUI(Service service){
-        this.service = service;
+    public ConsoleUI(Service_Old serviceOld){
+        this.serviceOld = serviceOld;
     }
 
     /**
@@ -89,7 +89,7 @@ public class ConsoleUI {
         String lastName = scanner.nextLine();
         System.out.println("Username:");
         String username = scanner.nextLine();
-        service.addUser(firstName,lastName,username);
+        serviceOld.addUser(firstName,lastName,username);
     }
 
     /**
@@ -99,7 +99,7 @@ public class ConsoleUI {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Username:");
         String username = scanner.nextLine();
-        service.deleteUser(username);
+        serviceOld.deleteUser(username);
     }
 
     /**
@@ -111,7 +111,7 @@ public class ConsoleUI {
         String username1 = scanner.nextLine();
         System.out.println("Username 2:");
         String username2 = scanner.nextLine();
-        service.addFriendship(username1,username2);
+        serviceOld.addFriendship(username1,username2);
     }
 
     /**
@@ -123,21 +123,21 @@ public class ConsoleUI {
         String username1 = scanner.nextLine();
         System.out.println("Username 2:");
         String username2 = scanner.nextLine();
-        service.removeFriendship(username1,username2);
+        serviceOld.removeFriendship(username1,username2);
     }
 
     /**
      *     Prints all users in the social network
      */
     void printAllUsersUI(){
-        service.getAllUsers().forEach(System.out::println);
+        serviceOld.getAllUsers().forEach(System.out::println);
     }
 
     /**
      *    Prints all friendships in the social network
      */
     void printAllFriendshipsUI(){
-        service.getAllFriendships().forEach(System.out::println);
+        serviceOld.getAllFriendships().forEach(System.out::println);
     }
 
     /**
@@ -147,21 +147,21 @@ public class ConsoleUI {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Username:");
         String username = scanner.nextLine();
-        service.getFriendsOfUser(username).forEach(System.out::println);
+        serviceOld.getFriendsOfUser(username).forEach(System.out::println);
     }
 
     /**
      *   Prints the biggest community in the social network
      */
     void printBiggestCommunityUI(){
-        service.getBiggestCommunity().forEach(System.out::println);
+        serviceOld.getBiggestCommunity().forEach(System.out::println);
     }
 
     /**
      *  Prints the number of communities in the social network
      */
     void printNumberOfCommunitiesUI(){
-        System.out.println(service.getNumberOfCommunities());
+        System.out.println(serviceOld.getNumberOfCommunities());
     }
 
 }
